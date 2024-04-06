@@ -3,53 +3,91 @@ let userOperation = ''
 let number = 0
 let firstNumber = 0
 let secondNumber = 0
-let checkInput = ''
+let typeInput = ''
+let currentNumber = 0
 
 const calcButton = document.querySelectorAll(".calc-button");
 
-for(let i = 0; i < calcButton.length ; i++){
-    calcButton[i].addEventListener("click", function (){
-        // console.log("user click on " + this.textContent)
-        classifyInput(this.textContent);
-        return this.textContent
+function whenClicked() {
+    calcButton.forEach(button => {
+        button.addEventListener("click", function () {
+            const input = this.textContent;
+            classifyInput(input);
+        });
     });
 }
 
-//checking if its a number or operation func? and storing the number/operation
+whenClicked()
+
 function classifyInput(input) {
-    // Check if the input is not one of the operations
-    if (!isNaN(input) || ['+', '-', 'x', '/', '=', 'C', '<-'].indexOf(input) === -1) {
-        // Assuming input is a number here
-        checkInput = 'number';
-        userInput += input;
-        number = +userInput;
-
-
-    } else {
-        // It's an operation
-        checkInput = 'operation';
-        firstNumber = number
-        userInput = 0
-        userOperation = input;
-
+    if (!isNaN(input) || input === '.') {
+        typeInput = 'number'
+        appendNumber(input);
+    } else if (['+', '-', 'x', '/', 'C', '<-'].includes(input)) {
+        typeInput = 'operation'
+        setOperation(input);
+    } else if (input === '=') {
+        //typeInput = 'operation'
+        calculateResult();
     }
-
     updateScreen();
 }
 
-//case switch for calculation?
-
-//showing to the screen
-function updateScreen (){
-    const calcScreen = document.querySelector(".screen");
-
-    if(checkInput === 'number'){
-        calcScreen.innerText = number;
+function appendNumber(number) {
+    if (typeInput === 'operation') {
+        userInput = ''; // Reset userInput if last input was an operation
+        typeInput = 'number'; // Reset typeInput for new number input
     }
-
-    else if(checkInput){
-        calcScreen.innerText = ''
-    }
+    userInput += number; // Append number
 }
+
+function setOperation(operation) {
+    if (operation === 'C') {
+        resetCalculator(); // Implement a function to reset calculator state
+        return;
+    }
+    if (userOperation && userInput) {
+        calculateResult(); // If there's an ongoing operation, calculate the result first
+    }
+    firstNumber = parseFloat(userInput); // Set the first number for the operation
+    userOperation = operation; // Update the operation
+    typeInput = 'operation'; // Set typeInput to operation
+}
+
+function calculateResult() {
+    if (!userOperation || !userInput) return; // Do nothing if no operation or input
+
+    secondNumber = parseFloat(userInput); // Parse second number
+    // Implement calculation logic based on userOperation
+    // For example:
+    switch (userOperation) {
+        case '+':
+            currentNumber = firstNumber + secondNumber;
+            break;
+        // Add cases for '-', 'x', '/'
+    }
+    userInput = currentNumber.toString(); // Update userInput with result for display
+    userOperation = ''; // Reset operation
+}
+
+function updateScreen() {
+    const calcScreen = document.querySelector(".screen");
+    calcScreen.innerText = userInput; // Display current userInput
+}
+
+function resetCalculator() {
+    userInput = '0';
+    userOperation = '';
+    number = 0;
+    firstNumber = 0;
+    secondNumber = 0;
+    typeInput = '';
+    currentNumber = 0;
+    updateScreen(); // Reset screen display
+}
+
+
+
+
 
 
